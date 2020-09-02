@@ -1,0 +1,4 @@
+# Add configuration values here, as shown below.
+DATABASE_URL: postgres://kashishbhutani:password@localhost:5432/sinatra_dev
+POSTGRES_USERNAME: kashishbhutani
+POSTGRES_PASSWORD: password
