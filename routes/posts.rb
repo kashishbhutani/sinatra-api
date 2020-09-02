@@ -12,7 +12,7 @@ namespace '/api/v1' do
             
             post.to_json
         rescue Exception => e
-            status 404
+            status 400
 			e.message.to_json
 		end
     end
@@ -22,7 +22,7 @@ namespace '/api/v1' do
             raise Exception, "Title Can't Be Blank!" unless params[:title].present?
 
             raise Exception, "Description Can't Be Blank!" unless params[:description].present?
-            
+
             halt 500 unless Post.create(
                 title: params[:title],
                 description: params[:description]
@@ -30,16 +30,20 @@ namespace '/api/v1' do
     
             status 201
         rescue Exception => e
-            status 404
+            status 400
 			e.message.to_json
 		end
     end
 
-    put 'posts/:id' do
+    put '/posts/:id' do
         begin
             post = Post.find_by_id(params[:id])
       
             raise Exception, "Post Not Found!" if post.nil?
+
+            raise Exception, "Title Can't Be Blank!" unless params[:title].present?
+
+            raise Exception, "Description Can't Be Blank!" unless params[:description].present?
 
             halt 500 unless post.update(
                 title: params[:title],
@@ -48,6 +52,7 @@ namespace '/api/v1' do
 
             status 201
         rescue Exception => e
+            status 400
 			e.message.to_json
 		end
     end
@@ -60,7 +65,7 @@ namespace '/api/v1' do
             
             halt 500 unless post.destroy
         rescue Exception => e
-            status 404
+            status 400
 			e.message.to_json
 		end
     end
