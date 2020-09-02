@@ -1,14 +1,25 @@
 namespace '/api/v1' do
 
-    get '/posts' do
-        Post.all.to_json
+    get '/users/:user_id/posts' do
+        begin
+            raise Exception, "User Not Found!" unless user = User.find_by_id(params[:user_id])
+
+            raise Exception, "No Post Found For User Id - #{user&.id}!" unless user&.posts.present?
+
+            user&.posts.to_json
+        rescue Exception => e
+            status 400
+            e.message.to_json
+        end
     end
     
-    get '/posts/:id' do
+    get '/users/:user_id/posts/:id' do
         begin
-            post = Post.find_by_id(params[:id])
+            raise Exception, "User Not Found!" unless user = User.find_by_id(params[:user_id])
+
+            post = user.posts.where(id: params[:id]).last
         
-            raise Exception, "Post Not Found!" if post.nil?
+            raise Exception, "Post Not Found!" unless post.present?
             
             post.to_json
         rescue Exception => e
@@ -17,13 +28,15 @@ namespace '/api/v1' do
 		end
     end
     
-    post '/posts' do
+    post '/users/:user_id/posts' do
         begin
+            raise Exception, "User Not Found!" unless user = User.find_by_id(params[:user_id])
+
             raise Exception, "Title Can't Be Blank!" unless params[:title].present?
 
             raise Exception, "Description Can't Be Blank!" unless params[:description].present?
 
-            halt 500 unless Post.create(
+            halt 500 unless user.posts.create(
                 title: params[:title],
                 description: params[:description]
             )
@@ -35,11 +48,13 @@ namespace '/api/v1' do
 		end
     end
 
-    put '/posts/:id' do
+    put '/users/:user_id/posts/:id' do
         begin
-            post = Post.find_by_id(params[:id])
-      
-            raise Exception, "Post Not Found!" if post.nil?
+            raise Exception, "User Not Found!" unless user = User.find_by_id(params[:user_id])
+
+            post = user.posts.where(id: params[:id]).last
+        
+            raise Exception, "Post Not Found!" unless post.present?
 
             raise Exception, "Title Can't Be Blank!" unless params[:title].present?
 
@@ -57,13 +72,17 @@ namespace '/api/v1' do
 		end
     end
     
-    delete '/posts/:id' do
+    delete '/users/:user_id/posts/:id' do
         begin
-            post = Post.find_by_id(params[:id])
+            raise Exception, "User Not Found!" unless user = User.find_by_id(params[:user_id])
 
-            raise Exception, "Post Not Found!" if post.nil?
+            post = user.posts.where(id: params[:id]).last
+        
+            raise Exception, "Post Not Found!" unless post.present?
             
             halt 500 unless post.destroy
+
+            status 201
         rescue Exception => e
             status 400
 			e.message.to_json

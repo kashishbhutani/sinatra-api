@@ -10,47 +10,9 @@ RSpec.describe 'App' do
 
   describe "Post API Routes" do
 
-    context 'POST #index' do 
-
-        let!(:all_posts) { Post.all }
-
-        it "sends all posts as json" do
-            get '/api/v1/posts'
-
-            expect(last_response.status).to eq 200
-            
-            expect(last_response.body).to include(all_posts.to_json)
-        end
-
-    end
-
-    context 'POST #show' do
-
-        let!(:single_post) { Post.last }
-
-        it "should send single post as json" do
-            get "/api/v1/posts/#{single_post.id}"
-
-            expect(last_response.status).to eq 200
-
-            expect(last_response.body).to include(single_post.to_json)
-        end
-
-        context 'ERRORS #show' do
-
-            it "should send post not found message as json" do
-                get "/api/v1/posts/34"
-
-                expect(last_response.status).to eq 400
-
-                expect(last_response.body).to include("Post Not Found!".to_json)
-            end
-
-        end
-
-    end
-
     context 'POST #create' do
+
+        let!(:user) { User.last }
 
         it "should create a new post" do
             params = {
@@ -58,7 +20,7 @@ RSpec.describe 'App' do
                 description: "Testing Description"
             }
 
-            expect { post "/api/v1/posts", params }.to change(Post, :count).by(1)
+            expect { post "/api/v1/users/#{user.id}/posts", params }.to change(Post, :count).by(1)
 
             expect(last_response.status).to eq 201
         end
@@ -70,7 +32,7 @@ RSpec.describe 'App' do
                     description: "Testing Description"
                 }
 
-                expect { post "/api/v1/posts", params }.to change(Post, :count).by(0)
+                expect { post "/api/v1/users/#{user.id}/posts", params }.to change(Post, :count).by(0)
 
                 expect(last_response.body).to include("Title Can't Be Blank!".to_json)
 
@@ -83,7 +45,7 @@ RSpec.describe 'App' do
                     description: "Testing Description"
                 }
 
-                expect { post "/api/v1/posts", params }.to change(Post, :count).by(0)
+                expect { post "/api/v1/users/#{user.id}/posts", params }.to change(Post, :count).by(0)
             end
 
             it "should not create new post with title of length > 255" do
@@ -92,7 +54,7 @@ RSpec.describe 'App' do
                     description: "Testing Description"
                 }
 
-                expect { post "/api/v1/posts", params }.to change(Post, :count).by(0)
+                expect { post "/api/v1/users/#{user.id}/posts", params }.to change(Post, :count).by(0)
             end
 
             it "should not create new post with empty description" do
@@ -100,7 +62,7 @@ RSpec.describe 'App' do
                     title: "Testing Post"
                 }
 
-                expect { post "/api/v1/posts", params }.to change(Post, :count).by(0)
+                expect { post "/api/v1/users/#{user.id}/posts", params }.to change(Post, :count).by(0)
 
                 expect(last_response.body).to include("Description Can't Be Blank!".to_json)
 
@@ -113,7 +75,9 @@ RSpec.describe 'App' do
 
     context 'POST #update' do
 
-        let!(:update_post) { Post.first }
+        let!(:user) { User.last }
+
+        let!(:update_post) { user.posts.last }
         
         it "should update a post" do
             params = {
@@ -121,7 +85,7 @@ RSpec.describe 'App' do
                 description: "Testing Description"
             }
 
-            put "/api/v1/posts/#{update_post.id}", params
+            put "/api/v1/users/#{user.id}/posts/#{update_post.id}", params
 
             expect(last_response.status).to eq 201
 
@@ -140,7 +104,7 @@ RSpec.describe 'App' do
                     description: "Testing Description"
                 }
 
-                put "/api/v1/posts/#{update_post.id}", params
+                put "/api/v1/users/#{user.id}/posts/#{update_post.id}", params
 
                 expect(last_response.body).to include("Title Can't Be Blank!".to_json)
 
@@ -153,7 +117,7 @@ RSpec.describe 'App' do
                     description: "Testing Description"
                 }
 
-                put "/api/v1/posts/#{update_post.id}", params
+                put "/api/v1/users/#{user.id}/posts/#{update_post.id}", params
             end
 
             it "should not update post with title of length > 255" do
@@ -162,7 +126,7 @@ RSpec.describe 'App' do
                     description: "Testing Description"
                 }
 
-                put "/api/v1/posts/#{update_post.id}", params
+                put "/api/v1/users/#{user.id}/posts/#{update_post.id}", params
             end
 
             it "should not update post with empty description" do
@@ -171,7 +135,7 @@ RSpec.describe 'App' do
                     description: nil
                 }
 
-                put "/api/v1/posts/#{update_post.id}", params
+                put "/api/v1/users/#{user.id}/posts/#{update_post.id}", params
 
                 expect(last_response.body).to include("Description Can't Be Blank!".to_json)
 
@@ -181,24 +145,86 @@ RSpec.describe 'App' do
 
     end
 
-    context 'POST #delete' do
+    context 'POST #index' do
 
-        let!(:delete_post) { Post.last }
+        let!(:user) { User.last }
 
-        it "should send single post as json" do
-            expect { delete "/api/v1/posts/#{delete_post.id}" }.to change(Post, :count).by(-1)
+        let!(:all_posts) { user.posts }
+
+        it "sends all posts of user as json" do
+            get "/api/v1/users/#{user&.id}/posts"
 
             expect(last_response.status).to eq 200
+            
+            expect(last_response.body).to include(all_posts.to_json)
+        end
+
+    end
+
+    context 'POST #show' do
+
+        let!(:user) { User.last }
+
+        let!(:single_post) { user.posts.last }
+
+        it "should send single post of user as json" do
+            get "/api/v1/users/#{user&.id}/posts/#{single_post.id}"
+
+            expect(last_response.status).to eq 200
+
+            expect(last_response.body).to include(single_post.to_json)
+        end
+
+        context 'ERRORS #show' do
+
+            it "should send user not found message as json" do
+                get "/api/v1/users/12345/posts/#{single_post.id}"
+
+                expect(last_response.status).to eq 400
+
+                expect(last_response.body).to include("User Not Found!".to_json)
+            end
+
+            it "should send post not found message as json" do
+                get "/api/v1/users/#{user&.id}/posts/12345"
+
+                expect(last_response.status).to eq 400
+
+                expect(last_response.body).to include("Post Not Found!".to_json)
+            end
+
+        end
+
+    end
+
+    context 'POST #delete' do
+
+        let!(:user) { User.last }
+
+        let!(:delete_post) { user.posts.last }
+
+        it "should delete single post of user" do
+            expect { delete "/api/v1/users/#{user.id}/posts/#{delete_post.id}" }.to change(Post, :count).by(-1)
+
+            expect(last_response.status).to eq 201
         end
 
         context 'ERRORS #delete' do
 
             it "should send post not found message as json" do
-                expect { delete "/api/v1/posts/567" }.to change(Post, :count).by(0)
+                expect { delete "/api/v1/users/#{user.id}/posts/21343" }.to change(Post, :count).by(0)
 
                 expect(last_response.status).to eq 400
 
                 expect(last_response.body).to include("Post Not Found!".to_json)
+            end
+
+            it "should send post not found message as json" do
+                expect { delete "/api/v1/users/123455/posts/#{delete_post.id}" }.to change(Post, :count).by(0)
+
+                expect(last_response.status).to eq 400
+
+                expect(last_response.body).to include("User Not Found!".to_json)
             end
 
         end

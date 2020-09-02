@@ -1,8 +1,11 @@
 source "https://rubygems.org"
 
+# Ruby Version
+ruby '2.4.1'
+
 # Dependencies
 gem 'sinatra', '2.0.8.1'
-gem 'sinatra-contrib'
+gem "sinatra-contrib"
 gem "figaro"
 
 # Database Configurations
