@@ -1,5 +1,8 @@
+#Posts API(Version 1)
+
 namespace '/api/v1' do
 
+    #GET /api/v1/users/:user_id/posts | Index
     get '/users/:user_id/posts' do
         begin
             raise Exception, "User Not Found!" unless user = User.find_by_id(params[:user_id])
@@ -13,6 +16,7 @@ namespace '/api/v1' do
         end
     end
     
+    #GET /api/v1/users/:user_id/posts/:id | Show
     get '/users/:user_id/posts/:id' do
         begin
             raise Exception, "User Not Found!" unless user = User.find_by_id(params[:user_id])
@@ -28,6 +32,7 @@ namespace '/api/v1' do
 		end
     end
     
+    #POST /api/v1/users/:user_id/posts | Create
     post '/users/:user_id/posts' do
         begin
             raise Exception, "User Not Found!" unless user = User.find_by_id(params[:user_id])
@@ -48,6 +53,7 @@ namespace '/api/v1' do
 		end
     end
 
+    #PUT /api/v1/users/:user_id/posts/:id | Update
     put '/users/:user_id/posts/:id' do
         begin
             raise Exception, "User Not Found!" unless user = User.find_by_id(params[:user_id])
@@ -72,6 +78,7 @@ namespace '/api/v1' do
 		end
     end
     
+    #DELETE /api/v1/users/:user_id/posts/:id | Destroy
     delete '/users/:user_id/posts/:id' do
         begin
             raise Exception, "User Not Found!" unless user = User.find_by_id(params[:user_id])

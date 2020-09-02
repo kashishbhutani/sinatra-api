@@ -1,9 +1,13 @@
+#Users API(Version 1)
+
 namespace '/api/v1' do
 
+    #GET /api/v1/users | Index
     get '/users' do
         User.all.to_json
     end
     
+    #GET /api/v1/users/:id | Show
     get '/users/:id' do
         begin
             user = User.find_by_id(params[:id])
@@ -17,6 +21,7 @@ namespace '/api/v1' do
 		end
     end
     
+    #POST /api/v1/users | Create
     post '/users' do
         begin
             raise Exception, "Name Can't Be Blank!" unless params[:name].present?
@@ -38,6 +43,7 @@ namespace '/api/v1' do
 		end
     end
 
+    #PUT /api/v1/users/:id | Update
     put '/users/:id' do
         begin
             user = User.find_by_id(params[:id])
@@ -63,6 +69,7 @@ namespace '/api/v1' do
 		end
     end
     
+    #DELETE /api/v1/users/:id | Destroy
     delete '/users/:id' do
         begin
             user = User.find_by_id(params[:id])

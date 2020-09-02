@@ -1,3 +1,5 @@
+# database configurations for all environments(production, test, development) will be done here.
+
 development:
   adapter: postgresql
   database: sinatra_dev
